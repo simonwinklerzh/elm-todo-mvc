@@ -46,7 +46,7 @@ update msg model =
         Input new_todo_name ->
             { model | input = new_todo_name }
         Add ->
-            model
+            add model
         Mark ->
             model
         Remove ->
@@ -54,13 +54,13 @@ update msg model =
         Filter ->
             model
 
---add : Model -> Model
---add model =
---    let 
---        new_entry =
---            { text = model.input, checked = false, id = List.length model.entries.length + 1 }
---    in
---    { model |  }
+add : Model -> Model
+add model =
+    let 
+        new_entry =
+            { text = model.input, checked = False, id = List.length model.entries + 1 }
+    in
+        { model | entries = new_entry :: model.entries }
 
 -- View
 
