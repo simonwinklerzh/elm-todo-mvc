@@ -102,12 +102,17 @@ todos_header input =
 
 todos_footer : Model -> Html.Html Msg
 todos_footer model =
+    let
+        list_length =
+            String.fromInt (List.length model.entries) 
+    in
+            
     Html.div
         [ class "todo__list-footer" ]
         [ if List.length model.entries > 0 then
             Html.p 
                 [ class "todo__list-count" ]
-                [ Html.text "N items left" ]
+                [ Html.text list_length ]
         else
             Html.text ""
         ]
