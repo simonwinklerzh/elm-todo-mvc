@@ -12,10 +12,11 @@ type alias Id = Int
 type alias Entry =
     { text : String
     , checked : Bool
+    , hidden : Bool
     , id : Id
     }
 
-type Filter
+type Filter_type
     = All
     | Active
     | Completed
@@ -23,7 +24,7 @@ type Filter
 type alias Model =
     { entries : List Entry
     , input : String
-    , filter : Filter
+    , filter : Filter_type
     , current_id : Id
     , any_entry_is_checked : Bool
     }
@@ -34,7 +35,7 @@ type Msg
     | Mark Entry
     | Remove Entry
     | Remove_all_checked
-    | Filter
+    | Filter Filter_type
 
 initModel : Model
 initModel =
@@ -60,8 +61,8 @@ update msg model =
             remove model entry
         Remove_all_checked ->
             { model | entries = remove_all_checked model.entries }
-        Filter ->
-            model
+        Filter filter_type ->
+            { model | filter = filter_type }
 
 add : Model -> Model
 add model =
@@ -69,7 +70,7 @@ add model =
         new_id = 
             model.current_id + 1
         new_entry =
-            { text = model.input, checked = False, id = new_id }
+            { text = model.input, checked = False, id = new_id, hidden = False }
     in
         { model 
             | entries = new_entry :: model.entries 
@@ -94,6 +95,10 @@ remove model entry =
 remove_all_checked : List Entry -> List Entry
 remove_all_checked entries =
     List.filter is_not_marked entries
+
+remove_all_unchecked : List Entry -> List Entry
+remove_all_unchecked entries =
+    List.filter is_marked entries
 
 is_marked : Entry -> Bool
 is_marked entry =
@@ -152,6 +157,27 @@ todos_footer model =
                 [ Html.text list_length ]
         else
             Html.text ""
+        , if List.length model.entries > 0 then
+            Html.div
+                [ class "todo__filter-container" ]
+                [ Html.p
+                    [ class "todo__filter"
+                    , onClick (Filter All)
+                    ]
+                    [ Html.text "All" ]
+                , Html.p
+                    [ class "todo__filter"
+                    , onClick (Filter Active)
+                    ]
+                    [ Html.text "Active" ]
+                , Html.p
+                    [ class "todo__filter"
+                    , onClick (Filter Completed)
+                    ]
+                    [ Html.text "Completed" ]
+                ]
+        else
+            Html.text ""
         , if model.any_entry_is_checked == True then
             Html.p
                 [ class "todo__remove-all-checked"
@@ -164,26 +190,29 @@ todos_footer model =
 
 todos_list_entry : Entry -> Html.Html Msg
 todos_list_entry entry =
-    Html.li
-        [ class "todos__list-entry" 
-        , attribute "data-id" (String.fromInt entry.id)
-        ]
-        [ Html.input
-            [ type_ "checkbox"
-            , onClick (Mark entry)
-            , checked entry.checked
+    if not entry.hidden == True then
+        Html.li
+            [ class "todos__list-entry" 
+            , attribute "data-id" (String.fromInt entry.id)
             ]
-            []
-        , Html.text entry.text
-        , Html.button
-            [ type_ "button"
-            , onClick (Remove entry)
+            [ Html.input
+                [ type_ "checkbox"
+                , onClick (Mark entry)
+                , checked entry.checked
+                ]
+                []
+            , Html.text entry.text
+            , Html.button
+                [ type_ "button"
+                , onClick (Remove entry)
+                ]
+                [ Html.text "X" ]
             ]
-            [ Html.text "X" ]
-        ]
+    else
+        Html.text ""
 
 todos_list : List Entry -> Html.Html Msg
-todos_list entries =
+todos_list entries =            
     if List.length entries > 0 then
         Html.ul
             [ class "todos__list" ]
@@ -193,18 +222,29 @@ todos_list entries =
 
 
 view : Model -> Html.Html Msg
-view model = Html.div
-    [ class "todos" ]
-    [ Html.h1
-        [ class "todos__title" ]
-        [ Html.text "Todos" ]
-    , Html.div
-        [ class "todos__list-wrapper" ]
-        [ todos_header model.input
-        , todos_list model.entries
-        , todos_footer model
-        ]
-    ]
+view model = 
+    let
+        filtered_entries =
+            case model.filter of
+                All ->
+                    model.entries
+                Active ->
+                    remove_all_checked model.entries
+                Completed ->
+                    remove_all_unchecked model.entries
+    in
+        Html.div
+            [ class "todos" ]
+            [ Html.h1
+                [ class "todos__title" ]
+                [ Html.text "Todos" ]
+            , Html.div
+                [ class "todos__list-wrapper" ]
+                [ todos_header model.input
+                , todos_list filtered_entries
+                , todos_footer model
+                ]
+            ]
 
 main : Program () Model Msg
 main = 
