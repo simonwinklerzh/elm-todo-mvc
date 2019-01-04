@@ -69,6 +69,7 @@ add model =
         { model 
             | entries = new_entry :: model.entries 
             , current_id = new_id
+            , input = ""
         }
 
 is_same_entry : Entry -> Entry -> Bool
