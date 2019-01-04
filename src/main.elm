@@ -124,7 +124,7 @@ todos_list_entry entry =
         [ class "todos__list-entry" 
         , attribute "data-id" (String.fromInt entry.id)
         ]
-        [ Html.text ( entry.text ++ "_" ++ (String.fromInt entry.id) )
+        [ Html.text entry.text
         , Html.button
             [ type_ "button"
             , onClick (Remove entry)
