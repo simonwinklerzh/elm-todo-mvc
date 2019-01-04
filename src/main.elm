@@ -3,7 +3,7 @@ module Main exposing (main)
 import Browser
 import Html
 import Html.Events exposing ( onInput, onSubmit, onClick )
-import Html.Attributes exposing ( class, attribute, type_, value, placeholder )
+import Html.Attributes exposing ( class, attribute, type_, value, placeholder, checked )
 
 -- Model
 
@@ -30,7 +30,7 @@ type alias Model =
 type Msg
     = Input String
     | Add
-    | Mark
+    | Mark Entry
     | Remove Entry
     | Filter
 
@@ -51,8 +51,8 @@ update msg model =
             { model | input = new_todo_name }
         Add ->
             add model
-        Mark ->
-            model
+        Mark entry ->
+            mark model entry
         Remove entry ->
             remove model entry
         Filter ->
@@ -83,6 +83,18 @@ remove : Model -> Entry -> Model
 remove model entry =
     let 
         new_entries = List.filter (is_not_same_entry entry) model.entries
+    in
+        { model | entries = new_entries }
+
+mark : Model -> Entry -> Model
+mark model entry =
+    let
+        new_entries = List.map (\current_entry ->
+                if is_same_entry entry current_entry then
+                    { current_entry | checked = not current_entry.checked }
+                else
+                    current_entry
+            ) model.entries
     in
         { model | entries = new_entries }
 
@@ -124,7 +136,13 @@ todos_list_entry entry =
         [ class "todos__list-entry" 
         , attribute "data-id" (String.fromInt entry.id)
         ]
-        [ Html.text entry.text
+        [ Html.input
+            [ type_ "checkbox"
+            , onClick (Mark entry)
+            , checked entry.checked
+            ]
+            []
+        , Html.text entry.text
         , Html.button
             [ type_ "button"
             , onClick (Remove entry)
