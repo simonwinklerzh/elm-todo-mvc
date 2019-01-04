@@ -25,6 +25,7 @@ type alias Model =
     , input : String
     , filter : Filter
     , current_id : Id
+    , any_entry_is_checked : Bool
     }
 
 type Msg
@@ -40,6 +41,7 @@ initModel =
     , input = ""
     , filter = All
     , current_id = 0
+    , any_entry_is_checked = False
     }
 
 -- Update
@@ -86,6 +88,10 @@ remove model entry =
     in
         { model | entries = new_entries }
 
+has_marked : List Entry -> Bool
+has_marked entries =
+    List.any (\entry -> entry.checked == True) entries
+
 mark : Model -> Entry -> Model
 mark model entry =
     let
@@ -96,7 +102,10 @@ mark model entry =
                     current_entry
             ) model.entries
     in
-        { model | entries = new_entries }
+        { model 
+            | entries = new_entries 
+            , any_entry_is_checked = has_marked new_entries
+        }
 
 -- View
 
@@ -127,6 +136,12 @@ todos_footer model =
                 [ class "todo__list-count" ]
                 [ Html.text list_length ]
         else
+            Html.text ""
+        , if model.any_entry_is_checked == True then
+            Html.p
+                []
+                [ Html.text "Remove all checked" ]
+        else 
             Html.text ""
         ]
 
