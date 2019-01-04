@@ -33,6 +33,7 @@ type Msg
     | Add
     | Mark Entry
     | Remove Entry
+    | Remove_all_checked
     | Filter
 
 initModel : Model
@@ -57,6 +58,8 @@ update msg model =
             mark model entry
         Remove entry ->
             remove model entry
+        Remove_all_checked ->
+            { model | entries = remove_all_checked model.entries }
         Filter ->
             model
 
@@ -88,9 +91,21 @@ remove model entry =
     in
         { model | entries = new_entries }
 
+remove_all_checked : List Entry -> List Entry
+remove_all_checked entries =
+    List.filter is_not_marked entries
+
+is_marked : Entry -> Bool
+is_marked entry =
+    entry.checked == True
+
+is_not_marked : Entry -> Bool
+is_not_marked entry =
+    entry.checked == False
+
 has_marked : List Entry -> Bool
 has_marked entries =
-    List.any (\entry -> entry.checked == True) entries
+    List.any is_marked entries
 
 mark : Model -> Entry -> Model
 mark model entry =
@@ -139,7 +154,9 @@ todos_footer model =
             Html.text ""
         , if model.any_entry_is_checked == True then
             Html.p
-                []
+                [ class "todo__remove-all-checked"
+                , onClick Remove_all_checked
+                ]
                 [ Html.text "Remove all checked" ]
         else 
             Html.text ""
