@@ -132,9 +132,12 @@ mark model entry =
 todos_header : String -> Html.Html Msg
 todos_header input =
     Html.form
-        [ onSubmit Add ]
+        [ onSubmit Add 
+        , class "todos__input-form"
+        ]
         [ Html.input
           [ type_ "text"
+          , class "todos__input-field"
           , value input
           , placeholder "What needs to be done?"
           , onInput Input
@@ -146,7 +149,12 @@ todos_footer : Model -> Html.Html Msg
 todos_footer model =
     let
         list_length =
-            String.fromInt (List.length model.entries) 
+            List.length model.entries
+        length_display_string =
+            if list_length == 1 then
+                "1 item left"
+            else
+                (String.fromInt list_length) ++ " items left"
     in
             
     Html.div
@@ -154,38 +162,52 @@ todos_footer model =
         [ if List.length model.entries > 0 then
             Html.p 
                 [ class "todo__list-count" ]
-                [ Html.text list_length ]
+                [ Html.text length_display_string ]
         else
             Html.text ""
         , if List.length model.entries > 0 then
             Html.div
                 [ class "todo__filter-container" ]
                 [ Html.p
-                    [ class "todo__filter"
+                    [ class (if model.filter == All then 
+                        "todo__filter todo__filter--active" 
+                    else 
+                        "todo__filter"
+                    )
                     , onClick (Filter All)
                     ]
                     [ Html.text "All" ]
                 , Html.p
-                    [ class "todo__filter"
+                    [ class (if model.filter == Active then
+                        "todo__filter todo__filter--active"
+                    else
+                        "todo__filter"
+                    )
                     , onClick (Filter Active)
                     ]
                     [ Html.text "Active" ]
                 , Html.p
-                    [ class "todo__filter"
+                    [ class (if model.filter == Completed then
+                        "todo__filter todo__filter--active"
+                    else
+                        "todo__filter"
+                    )
                     , onClick (Filter Completed)
                     ]
                     [ Html.text "Completed" ]
                 ]
         else
             Html.text ""
-        , if model.any_entry_is_checked == True then
-            Html.p
-                [ class "todo__remove-all-checked"
-                , onClick Remove_all_checked
-                ]
-                [ Html.text "Remove all checked" ]
-        else 
-            Html.text ""
+        , Html.p
+            [ class (if model.any_entry_is_checked then
+                "todo__remove-all-checked"
+            else
+                "todo__remove-all-checked todo__remove-all-checked--disabled"
+            )
+            , onClick Remove_all_checked
+            ]
+            [ Html.text "Remove all checked" ]
+
         ]
 
 todos_list_entry : Entry -> Html.Html Msg
@@ -197,6 +219,7 @@ todos_list_entry entry =
             ]
             [ Html.input
                 [ type_ "checkbox"
+                , class "todos__list-entry-checkbox"
                 , onClick (Mark entry)
                 , checked entry.checked
                 ]
@@ -204,6 +227,7 @@ todos_list_entry entry =
             , Html.text entry.text
             , Html.button
                 [ type_ "button"
+                , class "todos__list-entry-remove-button"
                 , onClick (Remove entry)
                 ]
                 [ Html.text "X" ]

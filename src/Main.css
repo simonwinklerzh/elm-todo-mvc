@@ -1,0 +1,95 @@
+html, body {
+	margin: 0;
+	padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-weight: normal;
+}
+
+.todos {
+	width: 550px;
+	max-width: 100%;
+	background-color: beige;
+	margin: 26px auto 0;
+	font-family: monospace;
+	padding: 13px;
+}
+
+.todos__title {
+	margin: -5px 0 13px 0;
+	font-size: 36px;
+}
+
+.todos__input-form {
+	margin-bottom: 13px;
+}
+
+.todos__input-field {
+	width: 100%;
+	box-sizing: border-box;
+	font-size: 20px;
+	padding: 3px 5px;
+	font-family: monospace;
+}
+
+.todos__list {
+	margin: 26px 0;
+	padding: 0;
+}
+
+.todos__list-entry {
+	font-size: 20px;
+	list-style-type: none;
+	display: flex;
+	align-items: center;
+	padding-top: 13px;
+	padding-bottom: 13px;
+	border-bottom: 1px solid darkgray;
+}
+
+.todos__list-entry:hover {
+	background-color: rgba(0, 0, 0, 0.1);
+}
+
+.todos__list-entry-checkbox {
+	margin-right: 13px;
+	cursor: pointer;
+	font-size: 2em;
+}
+
+.todos__list-entry-remove-button {
+	margin-left: auto;
+	display: none;
+}
+
+.todos__list-entry:hover .todos__list-entry-remove-button {
+	display: block;
+}
+
+.todo__list-footer {
+	display: flex;
+	justify-content: space-between;
+}
+
+.todo__filter-container {
+	display: flex;
+}
+
+.todo__filter {
+	margin-left: 6px;
+	cursor: pointer;
+}
+
+.todo__filter--active {
+	font-weight: bold;
+}
+
+.todo__remove-all-checked {
+	cursor: pointer;
+}
+
+.todo__remove-all-checked.todo__remove-all-checked--disabled {
+	opacity: 0.5;
+	cursor: default;
+}
